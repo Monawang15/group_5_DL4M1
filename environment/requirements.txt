@@ -1,0 +1,8 @@
+keras
+keras-tcn
+librosa
+matplotlib
+mirdata
+scikit-learn
+tensorflow==2.10.1
+tensorflow-hub
