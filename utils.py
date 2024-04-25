@@ -241,3 +241,78 @@ def load_and_extract_features(file_paths, feature_type='mfcc', sr=None, n_mfcc=1
     
     return features, sr_loaded
 
+
+
+#=======================================================================
+
+
+def wav_generator(data_home, augment, track_ids=None, sample_rate=22050,
+                  pitch_shift_steps=2, shuffle=True):
+    
+    audio_file_paths, labels = load_data(data_home, track_ids=track_ids)
+
+    # Convert labels to numpy array
+    labels = np.array(labels)
+
+    # Shuffle data if necessary
+    if shuffle:
+        idxs = np.random.permutation(len(labels))
+        audio_file_paths = [audio_file_paths[i] for i in idxs]
+        labels = labels[idxs]
+
+    for idx in range(len(audio_file_paths)):
+
+        # Load audio at given sample rate and label
+        label = labels[idx]
+        audio, _ = librosa.load(audio_file_paths[idx], sr=sample_rate)
+
+        audio = audio[:29*sample_rate]
+
+        # Yield the audio and label
+        yield audio, label
+
+def create_dataset(data_generator, input_args, input_shape, batch_size):
+    dataset = tf.data.Dataset.from_generator(
+        data_generator,
+        args=input_args,
+        output_signature=(
+            tf.TensorSpec(shape=input_shape, dtype=tf.float32),
+            tf.TensorSpec(shape=(), dtype=tf.uint8)
+        )
+    )
+    dataset = dataset.batch(batch_size)  # Batch the data
+    return dataset
+
+
+
+#plot model training loss
+#code from homework-3
+def plot_loss(history):
+    """
+    Plot the training and validation loss and accuracy.
+
+    Parameters
+    ----------
+    history : keras.callbacks.History
+        The history object returned by the `fit` method of a Keras model.
+
+    Returns
+    -------
+    None
+    """
+    accuracy = history.history["accuracy"]
+    val_accuracy = history.history["val_accuracy"]
+    loss = history.history["loss"]
+    val_loss = history.history["val_loss"]
+    epochs = range(1, len(accuracy) + 1)
+    plt.plot(epochs, accuracy, "bo", label="Training accuracy")
+    plt.plot(epochs, val_accuracy, "b", label="Validation accuracy")
+    plt.title("Training and validation accuracy")
+    plt.legend()
+    plt.figure()
+    plt.plot(epochs, loss, "bo", label="Training loss")
+    plt.plot(epochs, val_loss, "b", label="Validation loss")
+    plt.title("Training and validation loss")
+    plt.legend()
+    plt.show()
+
