@@ -1,8 +1,23 @@
-keras
-keras-tcn
-librosa
-matplotlib
-mirdata
-scikit-learn
-tensorflow==2.10.1
-tensorflow-hub
+name: dl4m-hw3.1
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - python=3.9
+
+  - pip:
+      - keras
+      - keras-tcn
+      - librosa==0.10.1
+      - matplotlib
+      - mirdata
+      - numpy
+      - scikit-learn
+      - tensorflow-macos==2.10.0
+      - tensorflow-hub
+      - smart-open
+      - pytest
+      - ipykernel
+      # Uncomment only you have an M series GPU chip
+      - tensorflow-metal==0.6.0

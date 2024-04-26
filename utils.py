@@ -1,27 +1,33 @@
 import subprocess
 import librosa
+import librosa.display
 import soundfile as sf
 import os
 from sklearn.model_selection import train_test_split
 import matplotlib.pyplot as plt
 import numpy as np
+import random
+import tensorflow as tf
+import keras
+from tcn import TCN
+from keras.models import model_from_json
 
 
-def convert_flac_to_wav_librosa(directory):
-    output_directory = os.path.join(directory, "wav_files")
-    if not os.path.exists(output_directory):
-        os.makedirs(output_directory)
+# def convert_flac_to_wav_librosa(directory):
+#     output_directory = os.path.join(directory, "wav_files")
+#     if not os.path.exists(output_directory):
+#         os.makedirs(output_directory)
 
-    for filename in os.listdir(directory):
-        if filename.endswith(".flac"):
-            path_to_flac = os.path.join(directory, filename)
-            path_to_wav = os.path.join(output_directory, os.path.splitext(filename)[0] + ".wav")
+#     for filename in os.listdir(directory):
+#         if filename.endswith(".flac"):
+#             path_to_flac = os.path.join(directory, filename)
+#             path_to_wav = os.path.join(output_directory, os.path.splitext(filename)[0] + ".wav")
 
-            # Load FLAC using librosa
-            audio, sr = librosa.load(path_to_flac, sr=None) 
-            # Save to WAV using soundfile
-            sf.write(path_to_wav, audio, sr)
-            print(f"Converted {path_to_flac} to {path_to_wav}")
+#             # Load FLAC using librosa
+#             audio, sr = librosa.load(path_to_flac, sr=None) 
+#             # Save to WAV using soundfile
+#             sf.write(path_to_wav, audio, sr)
+#             print(f"Converted {path_to_flac} to {path_to_wav}")
 
 
 def load_data(directory, label_file):
@@ -244,47 +250,6 @@ def load_and_extract_features(file_paths, feature_type='mfcc', sr=None, n_mfcc=1
 
 
 #=======================================================================
-
-
-def wav_generator(data_home, augment, track_ids=None, sample_rate=22050,
-                  pitch_shift_steps=2, shuffle=True):
-    
-    audio_file_paths, labels = load_data(data_home, track_ids=track_ids)
-
-    # Convert labels to numpy array
-    labels = np.array(labels)
-
-    # Shuffle data if necessary
-    if shuffle:
-        idxs = np.random.permutation(len(labels))
-        audio_file_paths = [audio_file_paths[i] for i in idxs]
-        labels = labels[idxs]
-
-    for idx in range(len(audio_file_paths)):
-
-        # Load audio at given sample rate and label
-        label = labels[idx]
-        audio, _ = librosa.load(audio_file_paths[idx], sr=sample_rate)
-
-        audio = audio[:29*sample_rate]
-
-        # Yield the audio and label
-        yield audio, label
-
-def create_dataset(data_generator, input_args, input_shape, batch_size):
-    dataset = tf.data.Dataset.from_generator(
-        data_generator,
-        args=input_args,
-        output_signature=(
-            tf.TensorSpec(shape=input_shape, dtype=tf.float32),
-            tf.TensorSpec(shape=(), dtype=tf.uint8)
-        )
-    )
-    dataset = dataset.batch(batch_size)  # Batch the data
-    return dataset
-
-
-
 #plot model training loss
 #code from homework-3
 def plot_loss(history):
@@ -316,3 +281,73 @@ def plot_loss(history):
     plt.legend()
     plt.show()
 
+
+
+#=====================================================
+
+def extract_yamnet_embedding(wav_data, yamnet):
+    """
+    Run YAMNet to extract embeddings from the wav data.
+
+    Parameters
+    ----------
+    wav_data : np.ndarray
+        The audio signal to be processed.
+    yamnet : tensorflow.keras.Model
+        The pre-trained YAMNet model.
+
+    Returns
+    -------
+    np.ndarray
+        The extracted embeddings from YAMNet.
+    """
+    # Hint: check the tensorflow models to see how YAMNET should be used
+    # YOUR CODE HERE
+     # Ensure wav_data is mono by averaging if it's not
+    scores, embeddings, spectrogram = yamnet(wav_data)
+    
+    return embeddings
+
+def reload_tcn(model_path, weights_path, optimizer, loss, metrics):
+    """
+    Reload a TCN model from a JSON file and restore its weights. 
+    Preferred method when dealing with custom layers.
+
+    Parameters
+    ----------
+    model_path : str
+        The path to the JSON file containing the model architecture.
+    weights_path : str
+        The path to the model weights file.
+    optimizer : str or tf.keras.optimizers.Optimizer
+        The optimizer to use when compiling the model.
+    loss : str or tf.keras.losses.Loss
+        The loss function to use when compiling the model.
+    metrics : list of str or tf.keras.metrics.Metric
+        The list of metrics to use when compiling the model.
+
+    Returns
+    -------
+    reloaded_model : tf.keras.Model
+        The reloaded model with the restored weights.
+
+    Example
+    -------
+    >>> model_path = 'path/to/saved_model.json'
+    >>> weights_path = 'path/to/saved_weights.h5'
+    >>> optimizer = 'adam'
+    >>> loss = 'sparse_categorical_crossentropy'
+    >>> metrics = ['accuracy']
+    >>> reloaded_model = reload_tcn(model_path, weights_path, optimizer, loss, metrics)
+    """
+    # Load the best checkpoint of the model from json file (due to custom layers)
+    loaded_json = open(model_path, 'r').read()
+    reloaded_model = model_from_json(loaded_json, custom_objects={'TCN': TCN})
+
+    reloaded_model.compile(optimizer=optimizer,
+                            loss=loss, 
+                            metrics=metrics)
+    # restore weights
+    reloaded_model.load_weights(weights_path)
+
+    return reloaded_model
