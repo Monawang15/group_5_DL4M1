@@ -8,18 +8,20 @@ import tensorflow as tf
 import numpy as np
 
 def build_model(input_shape):
-
     model = keras.Sequential()
-    model.add(Conv2D(32, (3, 3), activation='relu', input_shape=input_shape))
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-    model.add(MaxPooling2D((2, 2)))
-    model.add(Conv2D(64, (3, 3), activation='relu'))
-
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(13, 172, 1))) # Make sure use the correct shape, as your train_data_features shape
+    model.add(MaxPooling2D((2, 1))) # try different pool size
+    model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
+    model.add(MaxPooling2D((2, 1)))# try different pool size
+    model.add(Conv2D(64, (2, 2), padding='same', activation='relu')) #Try (2, 2) kernel
     # Flatten the output of the convolutional layers
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(1))
+    model.add(Dense(1, activation="sigmoid")) # dont forget activation here
+    model.compile(optimizer='adam',
+                  loss='binary_crossentropy',
+                  metrics=['accuracy'])
+    return model
    
    
 '''
