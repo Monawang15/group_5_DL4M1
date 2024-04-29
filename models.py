@@ -6,10 +6,11 @@ from tensorflow import keras
 import keras.backend as K
 import tensorflow as tf
 import numpy as np
+from tcn import TCN
 
 def build_model(input_shape):
     model = keras.Sequential()
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(13, 172, 1))) # Make sure use the correct shape, as your train_data_features shape
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(13, 798, 1))) # Make sure use the correct shape, as your train_data_features shape
     model.add(MaxPooling2D((2, 1))) # try different pool size
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
     model.add(MaxPooling2D((2, 1)))# try different pool size
@@ -46,10 +47,12 @@ def tcn_model(input_shape):
     model = keras.Sequential()
     
     # Adding the TCN layer
-    model.add(TCN(input_shape=input_shape,
+    model.add(TCN(input_shape= (13, 798, 1),
                   nb_filters=64,
                   kernel_size=5,
-                  dilations=(1, 2, 4, 8, 16, 32)))
+                  dilations=(1, 2, 4, 8, 16, 32),
+                  padding = 'causal',
+                  return_sequences=False))
 
     # Adding the output layer
     model.add(Dense(10, activation='softmax'))
