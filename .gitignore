@@ -1,3 +1,6 @@
 
 /checkpoints
 /new_data
+data/dev_set/._.DS_Store
+/data/dev_set
+data/LFCC_features.h5
