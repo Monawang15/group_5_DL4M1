@@ -46,7 +46,7 @@ def load_data(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.wav'  # Adjusting to include '.wav' in the filename key
+            file_name = parts[2] + '.flac'  # Adjusting to include '.wav' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -56,7 +56,7 @@ def load_data(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.wav'):
+        if file_name.endswith('.flac'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -101,7 +101,7 @@ def load_flac_data(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.wav'):
+        if file_name.endswith('.flac'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -136,7 +136,7 @@ def load_flac_data_reduced(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.wav'  # Adjusting to include '.flac' in the filename key
+            file_name = parts[2] + '.flac'  # Adjusting to include '.flac' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -154,7 +154,7 @@ def load_flac_data_reduced(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.wav'):
+        if file_name.endswith('.flac'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -198,7 +198,7 @@ def copy_selected_flac_files(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.wav'  # Adjusting to include '.flac' in the filename key
+            file_name = parts[2] + '.flac'  # Adjusting to include '.flac' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -398,10 +398,10 @@ def augment_and_concatenate_bonafide(audio_data, audio_labels, output_dir, pitch
 
 def append_directories(source_dir, target_dir, source_labels, target_labels):
     # List all audio files in the source directory
-    source_files = [f for f in os.listdir(source_dir) if f.endswith('.wav')]
+    source_files = [f for f in os.listdir(source_dir) if f.endswith('.flac')]
     
     # List all audio files in the target directory
-    target_files = [f for f in os.listdir(target_dir) if f.endswith('.wav')]
+    target_files = [f for f in os.listdir(target_dir) if f.endswith('.flac')]
 
     # Append audio files from source directory to target directory
     for file in source_files:
@@ -416,7 +416,7 @@ def append_directories(source_dir, target_dir, source_labels, target_labels):
 
 def create_bonafide_labels(audio_dir):
     # List all audio files in the directory
-    audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.wav')]
+    audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.flac')]
 
     # Create "bonafide" labels for the audio files
     audio_labels = ["bonafide"] * len(audio_files)
