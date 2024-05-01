@@ -691,3 +691,33 @@ def reload_tcn(model_path, weights_path, optimizer, loss, metrics):
     reloaded_model.load_weights(weights_path)
 
     return reloaded_model
+
+#==================== Evaluation ======================
+import numpy as np
+from sklearn.metrics import roc_curve
+from scipy.optimize import brentq
+from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
+from scipy.stats import norm
+
+def calculate_eer(y_true, y_scores):
+    # Calculate ROC curve
+    fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+    # Calculate EER
+    eer = brentq(lambda x: 1. - x - interp1d(fpr, tpr)(x), 0., 1.)
+    thresh = interp1d(fpr, thresholds)(eer)
+    return eer, thresh
+
+def plot_det_curve(y_true, y_scores):
+    fpr, tpr, thresholds = roc_curve(y_true, y_scores)
+    # Transform the FPR and FNR into normal deviates
+    fpr_transformed = norm.ppf(fpr)
+    fnr_transformed = norm.ppf(1 - tpr)
+
+    plt.figure()
+    plt.plot(fpr_transformed, fnr_transformed)
+    plt.xlabel('False Positive Rate (normal deviate)')
+    plt.ylabel('False Negative Rate (normal deviate)')
+    plt.title('DET Curve')
+    plt.grid(True)
+    plt.show()
