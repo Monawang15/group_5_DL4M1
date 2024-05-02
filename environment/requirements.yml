@@ -11,7 +11,6 @@ dependencies:
       - keras-tcn
       - librosa==0.10.1
       - matplotlib
-      - mirdata
       - numpy
       - scikit-learn
       - tensorflow-macos==2.10.0
