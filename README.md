@@ -5,12 +5,19 @@ See Japanese dataset in lightning AI link:
 ## Description
 This project is inspired by the 2024 Singing Deepfake Detection Challenge. It contains a pipeline designed to identify and flag deepfake content in Mandarin and Japanese. This pipeline uses CNN architecture to analyze singing files and detect discrepancies that may suggest manipulation. The dataset we used was derived from the Controlled SVDD dataset. 
 
+ link to the challenge: 
+    https://challenge.singfake.org/ 
+
+
 ## System Setting
 Since our groupmates work on both datasets parallelly, our model for the Mandarin singing deepfake detection pipeline is performed locally on a Macbook with an M1 chip, and the Japanese dataset singing deepfake detection pipeline is performed on Lightning AI. Besides these two differences, these two pipelines went through a very similar process. 
 
 The setup requirement for both local and virtual environments is in the requiementes.yml file under the environment folder. 
 
 ## Dataset
+link to dataset:
+    https://zenodo.org/records/10467648 
+    
 The original CtrSVDD dataset only provides deepfake audio files and some bonafide files. The rest of the bonafide files are downloaded separately from the following datasets: Oniku, Ofuton, Kiritan, and JVS-MuSiC. After downloading, the bonafide audio files were segmented based on the requirements in timestamps. We performed the segmentation by using this line of code in the terminal:
 
 ‘’’
