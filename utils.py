@@ -13,21 +13,21 @@ from tcn import TCN
 from keras.models import model_from_json
 
 
-# def convert_flac_to_wav_librosa(directory):
-#     output_directory = os.path.join(directory, "wav_files")
-#     if not os.path.exists(output_directory):
-#         os.makedirs(output_directory)
+def convert_flac_to_wav_librosa(directory):
+    output_directory = os.path.join(directory, "wav_files")
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
 
-#     for filename in os.listdir(directory):
-#         if filename.endswith(".flac"):
-#             path_to_flac = os.path.join(directory, filename)
-#             path_to_wav = os.path.join(output_directory, os.path.splitext(filename)[0] + ".wav")
+    for filename in os.listdir(directory):
+        if filename.endswith(".flac"):
+            path_to_flac = os.path.join(directory, filename)
+            path_to_wav = os.path.join(output_directory, os.path.splitext(filename)[0] + ".wav")
 
-#             # Load FLAC using librosa
-#             audio, sr = librosa.load(path_to_flac, sr=None) 
-#             # Save to WAV using soundfile
-#             sf.write(path_to_wav, audio, sr)
-#             print(f"Converted {path_to_flac} to {path_to_wav}")
+            # Load FLAC using librosa
+            audio, sr = librosa.load(path_to_flac, sr=None) 
+            # Save to WAV using soundfile
+            sf.write(path_to_wav, audio, sr)
+            print(f"Converted {path_to_flac} to {path_to_wav}")
 
 
 def load_data(directory, label_file):
@@ -46,7 +46,7 @@ def load_data(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.flac'  # Adjusting to include '.wav' in the filename key
+            file_name = parts[2] + '.wav'  # Adjusting to include '.wav' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -56,7 +56,7 @@ def load_data(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.flac'):
+        if file_name.endswith('.wav'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -91,7 +91,7 @@ def load_flac_data(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.flac'  # Adjusting to include '.flac' in the filename key
+            file_name = parts[2] + '.wav'  # Adjusting to include '.flac' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -101,7 +101,7 @@ def load_flac_data(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.flac'):
+        if file_name.endswith('.wav'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -136,7 +136,7 @@ def load_flac_data_reduced(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.flac'  # Adjusting to include '.flac' in the filename key
+            file_name = parts[2] + '.wav'  # Adjusting to include '.flac' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -154,7 +154,7 @@ def load_flac_data_reduced(directory, label_file):
 
     # Iterate over audio files in the directory
     for file_name in os.listdir(directory):
-        if file_name.endswith('.flac'):
+        if file_name.endswith('.wav'):
             # Load audio file
             file_path = os.path.join(directory, file_name)
             try:
@@ -198,7 +198,7 @@ def copy_selected_flac_files(directory, label_file):
     with open(label_file, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            file_name = parts[2] + '.flac'  # Adjusting to include '.flac' in the filename key
+            file_name = parts[2] + '.wav'  # Adjusting to include '.flac' in the filename key
             label = parts[-1]  # The label is the last item in the list
             labels[file_name] = label
     
@@ -398,10 +398,10 @@ def augment_and_concatenate_bonafide(audio_data, audio_labels, output_dir, pitch
 
 def append_directories(source_dir, target_dir, source_labels, target_labels):
     # List all audio files in the source directory
-    source_files = [f for f in os.listdir(source_dir) if f.endswith('.flac')]
+    source_files = [f for f in os.listdir(source_dir) if f.endswith('.wav')]
     
     # List all audio files in the target directory
-    target_files = [f for f in os.listdir(target_dir) if f.endswith('.flac')]
+    target_files = [f for f in os.listdir(target_dir) if f.endswith('.wav')]
 
     # Append audio files from source directory to target directory
     for file in source_files:
@@ -416,7 +416,7 @@ def append_directories(source_dir, target_dir, source_labels, target_labels):
 
 def create_bonafide_labels(audio_dir):
     # List all audio files in the directory
-    audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.flac')]
+    audio_files = [f for f in os.listdir(audio_dir) if f.endswith('.wav')]
 
     # Create "bonafide" labels for the audio files
     audio_labels = ["bonafide"] * len(audio_files)
@@ -538,30 +538,6 @@ def load_and_reflectively_pad_audio(file_path, sr=None, n_fft=2048):
     return audio, sr_loaded
 
 
-#for batch processing
-# def load_and_extract_features(file_paths, feature_type='mfcc', sr=None, n_mfcc=13, n_fft=1024, hop_length=512, n_filters=40):
-#     features = []
-#     max_length = 0  # Track the maximum length of the feature arrays
-
-#     # First, extract features and find the maximum length
-#     for file_path in file_paths:
-#         audio, sr_loaded = librosa.load(file_path, sr=sr)
-#         if feature_type == 'mfcc':
-#             feat = librosa.feature.mfcc(y=audio, sr=sr_loaded, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
-#         elif feature_type == 'lfcc':
-#             feat = compute_lfcc(audio, sr_loaded, n_filters, n_mfcc, n_fft)  # Assume compute_lfcc is defined elsewhere
-#         features.append(feat)
-#         if feat.shape[1] > max_length:
-#             max_length = feat.shape[1]
-
-#     # Pad each feature array to the maximum length
-#     features_padded = [pad_features(feat, max_length) for feat in features]
-
-#     # Convert the list of padded features to a numpy array
-#     features_array = np.array(features_padded)
-    
-#     return features_array, sr_loaded
-
 #revised by ChatGPT
 def load_and_extract_features(file_paths, feature_type='mfcc', sr=None, n_mfcc=13, n_fft=2048, hop_length=512, n_filters=40):
     features = []
@@ -589,8 +565,7 @@ def load_and_extract_features(file_paths, feature_type='mfcc', sr=None, n_mfcc=1
 
 
 
-#=======================================================================
-#plot model training loss
+#=======================Plot Model Training Accuracy and Loss======================================
 #code from homework-3
 def plot_loss(history):
     """
@@ -622,75 +597,6 @@ def plot_loss(history):
     plt.show()
 
 
-
-#=====================================================
-
-def extract_yamnet_embedding(wav_data, yamnet):
-    """
-    Run YAMNet to extract embeddings from the wav data.
-
-    Parameters
-    ----------
-    wav_data : np.ndarray
-        The audio signal to be processed.
-    yamnet : tensorflow.keras.Model
-        The pre-trained YAMNet model.
-
-    Returns
-    -------
-    np.ndarray
-        The extracted embeddings from YAMNet.
-    """
-    # Hint: check the tensorflow models to see how YAMNET should be used
-    # YOUR CODE HERE
-     # Ensure wav_data is mono by averaging if it's not
-    scores, embeddings, spectrogram = yamnet(wav_data)
-    
-    return embeddings
-
-def reload_tcn(model_path, weights_path, optimizer, loss, metrics):
-    """
-    Reload a TCN model from a JSON file and restore its weights. 
-    Preferred method when dealing with custom layers.
-
-    Parameters
-    ----------
-    model_path : str
-        The path to the JSON file containing the model architecture.
-    weights_path : str
-        The path to the model weights file.
-    optimizer : str or tf.keras.optimizers.Optimizer
-        The optimizer to use when compiling the model.
-    loss : str or tf.keras.losses.Loss
-        The loss function to use when compiling the model.
-    metrics : list of str or tf.keras.metrics.Metric
-        The list of metrics to use when compiling the model.
-
-    Returns
-    -------
-    reloaded_model : tf.keras.Model
-        The reloaded model with the restored weights.
-
-    Example
-    -------
-    >>> model_path = 'path/to/saved_model.json'
-    >>> weights_path = 'path/to/saved_weights.h5'
-    >>> optimizer = 'adam'
-    >>> loss = 'sparse_categorical_crossentropy'
-    >>> metrics = ['accuracy']
-    >>> reloaded_model = reload_tcn(model_path, weights_path, optimizer, loss, metrics)
-    """
-    # Load the best checkpoint of the model from json file (due to custom layers)
-    loaded_json = open(model_path, 'r').read()
-    reloaded_model = model_from_json(loaded_json, custom_objects={'TCN': TCN})
-
-    reloaded_model.compile(optimizer=optimizer,
-                            loss=loss, 
-                            metrics=metrics)
-    # restore weights
-    reloaded_model.load_weights(weights_path)
-
-    return reloaded_model
 
 #==================== Evaluation ======================
 import numpy as np

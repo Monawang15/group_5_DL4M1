@@ -9,57 +9,50 @@ import numpy as np
 from tcn import TCN
 
 def build_model(input_shape):
+    """
+    Create a Convolutional Neural Network (CNN) model for binary classification.
+
+    The CNN architecture consists of three convolutional blocks followed by fully connected layers.
+    Each convolutional block has the following layers:
+    1. Conv2D layer with 32 filters, a kernel size of (3, 3), ReLU activation, and 'same' padding to maintain spatial dimensions
+    2. MaxPooling2D layer with a pool size of (2, 1) to reduce the spatial size vertically
+    3. Conv2D layer with 64 filters, a kernel size of (3, 3), ReLU activation, and 'same' padding
+    4. MaxPooling2D layer with a pool size of (2, 1) to further reduce size vertically
+    5. Conv2D layer with 64 filters, a kernel size of (2, 2), ReLU activation, and 'same' padding
+
+    After the convolutional blocks, the following fully connected layers are added:
+    1. Flatten layer to convert the 2D feature maps into a 1D feature vector
+    2. Dense layer with 64 units and ReLU activation
+    3. Dense layer with 1 unit and sigmoid activation (output layer)
+
+    The model is compiled using the Adam optimizer, binary crossentropy loss,
+    and accuracy metric.
+
+    Parameters
+    ----------
+    input_shape : tuple
+      The shape of the input data, which includes the height, width, and channels of the input feature map.
+      For example, (13, 798, 1) indicates a feature map with 13 height, 798 width, and a single channel.
+
+    Returns
+    -------
+    model : keras.Sequential
+      A compiled Keras Sequential model with the CNN architecture suitable for binary classification tasks.
+    """
+     
     model = keras.Sequential()
-    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(13, 798, 1))) # Make sure use the correct shape, as your train_data_features shape
-    model.add(MaxPooling2D((2, 1))) # try different pool size
+
+    model.add(Conv2D(32, (3, 3), activation='relu', padding='same', input_shape=(13, 798, 1))) # train_data_features shape
+    model.add(MaxPooling2D((2, 1)))
     model.add(Conv2D(64, (3, 3), padding='same', activation='relu'))
-    model.add(MaxPooling2D((2, 1)))# try different pool size
-    model.add(Conv2D(64, (2, 2), padding='same', activation='relu')) #Try (2, 2) kernel
+    model.add(MaxPooling2D((2, 1)))
+    model.add(Conv2D(64, (2, 2), padding='same', activation='relu')) 
     # Flatten the output of the convolutional layers
     model.add(Flatten())
     model.add(Dense(64, activation='relu'))
-    model.add(Dense(1, activation="sigmoid")) # dont forget activation here
+    model.add(Dense(1, activation="sigmoid")) 
     model.compile(optimizer='adam',
                   loss='binary_crossentropy',
                   metrics=['accuracy'])
     return model
    
-   
-'''
-    model = keras.Sequential([
-        Input(shape=input_shape),
-        Conv2D(32, kernel_size=(3, 3), activation='relu'),
-        MaxPooling2D(pool_size=(2, 2)),
-        Conv2D(64, kernel_size=(3, 3), activation='relu'),
-        MaxPooling2D(pool_size=(2, 2)),
-        # Removed Flatten()
-        Conv2D(128, kernel_size=(1, 1), activation='relu'),  # 1x1 convolution to act as dense layer
-        Dropout(0.5),
-        Conv2D(64, kernel_size=(1, 1), activation='relu'),   # Another 1x1 convolution
-        Conv2D(10, kernel_size=(1, 1), activation='softmax') # Final layer with 10 channels for 10 classes
-    ])
-    model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-    return model
-'''
-  
-def tcn_model(input_shape):
-
-    model = keras.Sequential()
-    
-    # Adding the TCN layer
-    model.add(TCN(input_shape= (13, 798, 1),
-                  nb_filters=64,
-                  kernel_size=5,
-                  dilations=(1, 2, 4, 8, 16, 32),
-                  padding = 'causal',
-                  return_sequences=False))
-
-    # Adding the output layer
-    model.add(Dense(10, activation='softmax'))
-
-    # Compile the model
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-
-    return model
